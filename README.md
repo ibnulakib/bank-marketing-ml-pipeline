@@ -1,7 +1,5 @@
 # Bank Marketing Subscription Prediction — End-to-End ML Pipeline
 
-> **Module:** DG4AML – Applied Machine Learning | Aston University  
-> **Result:** Passed ✅
 
 A complete, reproducible machine learning pipeline built on the [UCI Bank Marketing dataset](https://archive.ics.uci.edu/dataset/222/bank+marketing) to predict whether a customer will subscribe to a term deposit after a telemarketing call. The project covers all four stages of the ML lifecycle: **EDA & Pre-processing → Clustering → Regression → Classification**.
 
@@ -23,12 +21,12 @@ A complete, reproducible machine learning pipeline built on the [UCI Bank Market
 
 ## Project Overview
 
-The core challenge is predicting term deposit subscription from **pre-call information only** — meaning the actual call duration cannot be used as a predictor (it would cause target leakage, since you only know call length after the call ends).
+The core challenge is predicting term deposit subscription from **pre-call information only** - meaning the actual call duration cannot be used as a predictor (it would cause target leakage, since you only know call length after the call ends).
 
 To solve this properly, the pipeline engineers two features before the final classifier sees the data:
 
-1. **Customer Segment** — derived from unsupervised clustering on pre-call features
-2. **Predicted Call Duration** — a regression model estimate based on pre-call features and the segment label
+1. **Customer Segment** - derived from unsupervised clustering on pre-call features
+2. **Predicted Call Duration** - a regression model estimate based on pre-call features and the segment label
 
 These engineered features flow downstream, giving the classifier richer signal without leaking post-call information.
 
@@ -77,7 +75,7 @@ Raw Data (bank-full-updated.csv)
 
 ## Dataset
 
-**Source:** [UCI Machine Learning Repository – Bank Marketing](https://archive.ics.uci.edu/dataset/222/bank+marketing)  
+**Source:** [UCI Machine Learning Repository - Bank Marketing](https://archive.ics.uci.edu/dataset/222/bank+marketing)  
 **File:** `bank-full-updated.csv`  
 **Size:** ~45,000 rows × 18 columns  
 **Class imbalance:** ~88.3% No / ~11.7% Yes (7.5:1 ratio)
@@ -114,7 +112,7 @@ Raw Data (bank-full-updated.csv)
 
 ## Methods & Models
 
-### Section 1 — EDA & Pre-processing
+### Section 1 - EDA & Pre-processing
 
 | Approach | Encoding | Scaling | CV F1 | CV AUC |
 |---|---|---|---|---|
@@ -123,32 +121,32 @@ Raw Data (bank-full-updated.csv)
 
 **Selected:** One-Hot Encoding + StandardScaler — preserves the nominal nature of categorical features and handles outliers in balance/campaign more robustly than min-max scaling.
 
-### Section 2 — Clustering (Customer Segmentation)
+### Section 2 - Clustering (Customer Segmentation)
 
 | Method | Clusters | Silhouette Score |
 |---|---|---|
 | **K-Means ✓** | 3 | 0.134 |
 | Gaussian Mixture Model | 10 (BIC-optimal) | 0.023 |
 
-**Selected:** K-Means with k=3 — produces interpretable, well-separated segments (subscription rates: 23.1% / 10.0% / 8.3%) and shows clear structure in PCA projections. GMM's BIC kept decreasing to k=10, indicating overfitting to the high-dimensional covariance structure.
+**Selected:** K-Means with k=3 - produces interpretable, well-separated segments (subscription rates: 23.1% / 10.0% / 8.3%) and shows clear structure in PCA projections. GMM's BIC kept decreasing to k=10, indicating overfitting to the high-dimensional covariance structure.
 
-### Section 3 — Regression (Call Duration Prediction)
+### Section 3 - Regression (Call Duration Prediction)
 
 | Method | R² | RMSE | MAE |
 |---|---|---|---|
 | **Random Forest ✓** | 0.019 | 255.12 | 168.09 |
 | Ridge Regression | 0.016 | 255.48 | 168.43 |
 
-**Selected:** Random Forest — marginally outperforms Ridge on all metrics and can capture non-linear feature interactions (e.g. balance × age effects on call length). Both models show low R², which is expected: call duration is largely determined by real-time conversation dynamics unavailable pre-call. Out-of-fold (`cross_val_predict`) predictions are used to prevent leakage into the classification stage.
+**Selected:** Random Forest - marginally outperforms Ridge on all metrics and can capture non-linear feature interactions (e.g. balance × age effects on call length). Both models show low R², which is expected: call duration is largely determined by real-time conversation dynamics unavailable pre-call. Out-of-fold (`cross_val_predict`) predictions are used to prevent leakage into the classification stage.
 
-### Section 4 — Classification (Subscription Prediction)
+### Section 4 - Classification (Subscription Prediction)
 
 | Method | AUC-ROC | F1 (Yes) | Precision (Yes) | Recall (Yes) | Accuracy |
 |---|---|---|---|---|---|
 | **Logistic Regression ✓** | 0.775 | 0.38 | 0.27 | 0.64 | 76% |
 | Gradient Boosting | 0.801 | 0.36 | 0.65 | 0.25 | 90% |
 
-**Selected:** Logistic Regression — despite lower overall accuracy, it achieves far higher recall (64% vs 25%) on the minority class. In a telemarketing context, missing a genuine subscriber is more costly than an unnecessary call, so recall is the priority metric. Gradient Boosting's high precision comes at the expense of missing three quarters of potential subscribers.
+**Selected:** Logistic Regression - despite lower overall accuracy, it achieves far higher recall (64% vs 25%) on the minority class. In a telemarketing context, missing a genuine subscriber is more costly than an unnecessary call, so recall is the priority metric. Gradient Boosting's high precision comes at the expense of missing three quarters of potential subscribers.
 
 ---
 
@@ -216,7 +214,7 @@ Tested with Python 3.9+.
 ## Design Decisions
 
 **Why not use call duration as a feature?**  
-Call duration is only known after the call ends — using it to predict subscription would be target leakage. The pipeline instead *predicts* duration from pre-call features and uses that estimate.
+Call duration is only known after the call ends - using it to predict subscription would be target leakage. The pipeline instead *predicts* duration from pre-call features and uses that estimate.
 
 **Why address class imbalance without resampling?**  
 Rather than SMOTE or undersampling, `class_weight='balanced'` is used in Logistic Regression and `scale_pos_weight` is considered for Gradient Boosting. This avoids synthetic data artefacts while still correcting for the 7.5:1 skew.
