@@ -93,7 +93,7 @@ Raw Data (bank-full-updated.csv)
 | `contact` | categorical | Contact communication type |
 | `day` | numeric | Last contact day of month |
 | `month` | categorical | Last contact month |
-| `duration` | numeric | Last call duration (seconds) — **target for regression, excluded from classification** |
+| `duration` | numeric | Last call duration (seconds) - **target for regression, excluded from classification** |
 | `campaign` | numeric | Number of contacts in this campaign |
 | `pdays` | numeric | Days since last contacted (−1 = never) |
 | `previous` | numeric | Contacts before this campaign |
